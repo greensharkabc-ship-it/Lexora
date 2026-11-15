@@ -1,0 +1,1173 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Lexora</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* Layout: a pocket-dictionary page. Headword entries run down the main column under an A–Z thumb index; the "coin a word" composer sits pinned in the right margin and folds into a bar above the feed on phones. */
+:root {
+  --paper: #F1F2F7;
+  --card: #FFFFFF;
+  --ink: #17151F;
+  --ink-2: #575668;
+  --ink-3: #85849A;
+  --rule: #D9DAE5;
+  --accent: #2D37DE;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E1E3FF;
+  --danger: #B32038;
+  --danger-ink: #FFFFFF;
+  --hl-1: #FFE45A;
+  --hl-2: #FF9FD0;
+  --hl-3: #90EDB2;
+  --hl-4: #97D8FF;
+  --hl-5: #FFBA7A;
+  --f-display: "Bricolage Grotesque", "Arial Black", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Instrument Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0F0F16;
+    --card: #181822;
+    --ink: #EEEDF6;
+    --ink-2: #A9A7BD;
+    --ink-3: #77758D;
+    --rule: #2B2A3A;
+    --accent: #8F96FF;
+    --accent-ink: #0F0F16;
+    --accent-soft: #262850;
+    --danger: #FF7D91;
+    --danger-ink: #1B0A0F;
+    --hl-1: rgba(255, 222, 64, .30);
+    --hl-2: rgba(255, 115, 190, .32);
+    --hl-3: rgba(80, 230, 145, .27);
+    --hl-4: rgba(95, 195, 255, .30);
+    --hl-5: rgba(255, 155, 75, .32);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0F0F16;
+  --card: #181822;
+  --ink: #EEEDF6;
+  --ink-2: #A9A7BD;
+  --ink-3: #77758D;
+  --rule: #2B2A3A;
+  --accent: #8F96FF;
+  --accent-ink: #0F0F16;
+  --accent-soft: #262850;
+  --danger: #FF7D91;
+  --danger-ink: #1B0A0F;
+  --hl-1: rgba(255, 222, 64, .30);
+  --hl-2: rgba(255, 115, 190, .32);
+  --hl-3: rgba(80, 230, 145, .27);
+  --hl-4: rgba(95, 195, 255, .30);
+  --hl-5: rgba(255, 155, 75, .32);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 72px;
+}
+
+/* ---------- highlighter swipe ---------- */
+.hl {
+  --hl: var(--hl-1);
+  background-image: linear-gradient(transparent 50%, var(--hl) 50%, var(--hl) 91%, transparent 91%);
+  padding: 0 .08em;
+  margin: 0 -.08em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.hl-1 { --hl: var(--hl-1); }
+.hl-2 { --hl: var(--hl-2); }
+.hl-3 { --hl: var(--hl-3); }
+.hl-4 { --hl: var(--hl-4); }
+.hl-5 { --hl: var(--hl-5); }
+
+/* ---------- masthead ---------- */
+.masthead {
+  display: grid;
+  gap: 14px 48px;
+  padding-bottom: 26px;
+  margin-bottom: 28px;
+  border-bottom: 2px solid var(--ink);
+}
+@media (min-width: 860px) {
+  .masthead { grid-template-columns: auto minmax(0, 1fr); align-items: end; }
+}
+.brand { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+.logo {
+  margin: 0;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: clamp(56px, 11vw, 108px);
+  line-height: .9;
+  letter-spacing: -.05em;
+}
+.brand-pron { margin: 0; font-size: 18px; color: var(--ink-2); white-space: nowrap; }
+.brand-pron b { color: var(--ink); font-weight: 700; }
+.pos { font-family: var(--f-serif); font-style: italic; font-size: 1.1em; color: var(--ink-2); margin-right: .3em; }
+.brand-senses { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 17px; max-width: 60ch; }
+.brand-senses li { display: grid; grid-template-columns: 22px minmax(0, 1fr); }
+.brand-senses .n { font-family: var(--f-display); font-weight: 800; color: var(--accent); }
+.stats { margin: 8px 0 0; font-size: 14px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.stats b { color: var(--ink); font-weight: 700; }
+.linkish {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  color: var(--accent); font-weight: 600; text-decoration: underline; text-underline-offset: 3px;
+}
+
+/* ---------- two-column layout ---------- */
+.layout { display: grid; gap: 28px; grid-template-columns: minmax(0, 1fr); }
+.feed { min-width: 0; }
+@media (min-width: 960px) {
+  .layout { grid-template-columns: minmax(0, 1fr) 360px; grid-template-areas: "feed composer"; align-items: start; gap: 40px; }
+  .feed { grid-area: feed; }
+  .composer { grid-area: composer; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); max-height: calc(100vh - 32px); overflow: auto; }
+}
+
+/* ---------- word of the day ---------- */
+.wotd {
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: 20px;
+  padding: clamp(20px, 4vw, 34px);
+  box-shadow: 7px 7px 0 var(--accent);
+  display: grid;
+  gap: 8px;
+  margin-right: 7px;
+}
+.wotd-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 14px; }
+.eyebrow { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.eyebrow.muted { color: var(--ink-3); }
+.wotd-word {
+  margin: 6px 0 0;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: clamp(44px, 8vw, 78px);
+  line-height: .98;
+  letter-spacing: -.04em;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+.wotd-word.small { font-size: clamp(34px, 6vw, 52px); }
+.wotd .pron { font-size: 17px; }
+.wotd-def { margin: 4px 0 0; font-size: clamp(17px, 2.2vw, 20px); max-width: 58ch; }
+.wotd .ex { font-size: clamp(18px, 2.4vw, 22px); }
+.wotd-text { margin: 0; font-size: 16px; color: var(--ink-2); max-width: 58ch; }
+.wotd-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; }
+
+/* ---------- toolbar ---------- */
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 30px 0 16px; }
+.search {
+  flex: 1 1 260px; min-width: 0;
+  display: flex; align-items: center; gap: 8px;
+  background: var(--card); border: 1.5px solid var(--rule); border-radius: 999px;
+  padding: 0 14px; color: var(--ink-3);
+}
+.search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.search input {
+  flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink);
+  font: inherit; font-size: 15px; padding: 10px 0; outline: none;
+}
+.search kbd {
+  font-family: var(--f-body); font-size: 12px; color: var(--ink-3);
+  border: 1px solid var(--rule); border-radius: 6px; padding: 0 6px;
+}
+.seg { display: inline-flex; background: var(--card); border: 1.5px solid var(--rule); border-radius: 999px; padding: 3px; }
+.seg button, .chip {
+  border: 0; background: transparent; color: var(--ink-2);
+  font-size: 14px; font-weight: 600; padding: 7px 14px; border-radius: 999px; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.chip { border: 1.5px solid var(--rule); background: var(--card); padding: 8px 15px; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.chip:disabled { opacity: .45; cursor: default; }
+
+/* ---------- thumb index ---------- */
+.thumbs {
+  display: flex; gap: 3px;
+  overflow-x: auto; scrollbar-width: thin;
+  padding-top: 4px;
+  border-bottom: 2px solid var(--ink);
+}
+.thumbs button {
+  flex: 1 0 27px;
+  height: 34px;
+  font-family: var(--f-display); font-weight: 700; font-size: 14px;
+  border: 1.5px solid var(--rule); border-bottom: 0; border-radius: 10px 10px 0 0;
+  background: var(--card); color: var(--ink); cursor: pointer;
+}
+.thumbs button.all { flex: 0 0 auto; padding: 0 12px; }
+.thumbs button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.thumbs button:disabled { background: transparent; color: var(--ink-3); opacity: .55; cursor: default; }
+.list-note { margin: 14px 0 0; font-size: 14px; color: var(--ink-2); }
+
+/* ---------- entries ---------- */
+.entries { display: grid; }
+.entry { padding-block: 26px; border-bottom: 1px solid var(--rule); }
+.entry-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.headword {
+  margin: 0;
+  font-family: var(--f-display); font-weight: 800;
+  font-size: clamp(28px, 4.4vw, 38px);
+  line-height: 1.08; letter-spacing: -.03em;
+  overflow-wrap: anywhere; min-width: 0;
+}
+.pron { color: var(--ink-2); font-size: 15px; }
+.sense-count { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.senses { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 20px; }
+.sense { display: grid; grid-template-columns: minmax(0, 1fr); border-radius: 12px; }
+.senses.multi .sense { grid-template-columns: 26px minmax(0, 1fr); }
+.num { font-family: var(--f-display); font-weight: 800; font-size: 18px; line-height: 1.45; color: var(--accent); }
+.sense-body { min-width: 0; }
+.def { margin: 0; font-size: 17px; line-height: 1.5; max-width: 64ch; overflow-wrap: anywhere; }
+.ex { margin: 6px 0 0; font-family: var(--f-serif); font-style: italic; font-size: 19px; line-height: 1.4; color: var(--ink-2); max-width: 60ch; overflow-wrap: anywhere; }
+.origin { margin: 8px 0 0; font-size: 14px; color: var(--ink-2); max-width: 64ch; overflow-wrap: anywhere; }
+.origin b { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-right: 8px; }
+.sense-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 12px; }
+.by { flex: 1 1 220px; min-width: 0; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); }
+.by > span { min-width: 0; overflow-wrap: anywhere; }
+.by .name { color: var(--ink); font-weight: 600; }
+.av { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; flex: none; background: var(--rule); display: inline-block; }
+.votes { display: flex; gap: 6px; }
+.vote {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums;
+  padding: 5px 12px 5px 9px; border-radius: 999px;
+  border: 1.5px solid var(--rule); background: transparent; color: var(--ink-2); cursor: pointer;
+}
+.vote svg { width: 14px; height: 14px; }
+.vote b { color: var(--ink); font-weight: 700; }
+.vote:hover:not(:disabled) { border-color: var(--ink-3); }
+.vote.up[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.vote.down[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.vote[aria-pressed="true"] b { color: inherit; }
+.vote:disabled { cursor: default; opacity: .7; }
+.tools { display: flex; flex-wrap: wrap; gap: 2px; }
+.tool { background: none; border: 0; color: var(--ink-2); font-size: 13px; font-weight: 600; padding: 5px 9px; border-radius: 8px; cursor: pointer; }
+.tool:hover { background: var(--accent-soft); color: var(--ink); }
+.tool.warn { color: var(--danger); }
+.confirm { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13.5px; }
+.confirm span { margin-right: 4px; }
+@keyframes flash {
+  0% { background: var(--accent-soft); box-shadow: 0 0 0 10px var(--accent-soft); }
+  100% { background: transparent; box-shadow: 0 0 0 10px transparent; }
+}
+.sense.flash { animation: flash 2.2s ease-out both; }
+
+/* ---------- buttons ---------- */
+.btn {
+  border: 1.5px solid transparent; border-radius: 999px;
+  padding: 10px 18px; font-size: 14.5px; font-weight: 700; cursor: pointer;
+}
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; border-color: var(--rule); color: var(--ink); }
+.btn.ghost:hover { border-color: var(--ink-3); }
+.btn.danger { background: var(--danger); color: var(--danger-ink); }
+.btn.sm { padding: 6px 13px; font-size: 13px; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ---------- composer ---------- */
+.composer { background: var(--card); border: 1.5px solid var(--rule); border-radius: 18px; padding: 16px 18px; }
+.composer-toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  width: 100%; padding: 0; border: 0; background: none; cursor: pointer; text-align: left;
+  font-family: var(--f-display); font-weight: 800; font-size: 21px; letter-spacing: -.02em; color: var(--ink);
+}
+.composer-toggle .pm {
+  flex: none; width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--accent); color: var(--accent-ink);
+  transition: transform .2s ease;
+}
+.composer-toggle .pm svg { width: 16px; height: 16px; }
+.composer:not(.is-collapsed) .composer-toggle .pm { transform: rotate(45deg); }
+.composer-body { display: grid; gap: 16px; margin-top: 16px; }
+.composer.is-collapsed .composer-body { display: none; }
+.composer-title { display: none; }
+.composer-sub { margin: 0; font-size: 14px; color: var(--ink-2); }
+@media (min-width: 960px) {
+  .composer { padding: 22px; }
+  .composer-toggle { display: none; }
+  .composer.is-collapsed .composer-body { display: grid; margin-top: 0; }
+  .composer-body { margin-top: 0; }
+  .composer-title { display: block; margin: 0; font-family: var(--f-display); font-weight: 800; font-size: 25px; letter-spacing: -.02em; line-height: 1.1; }
+}
+.access {
+  margin: 0; display: flex; align-items: center; gap: 8px;
+  font-size: 13.5px; color: var(--ink-2);
+  background: var(--paper); border-radius: 10px; padding: 9px 12px;
+}
+.access b { color: var(--ink); }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 14px; }
+fieldset:disabled { opacity: .55; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field label { font-size: 13px; font-weight: 700; }
+.opt { font-weight: 400; color: var(--ink-3); }
+.row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+@media (max-width: 400px) { .row2 { grid-template-columns: minmax(0, 1fr); } }
+input:not([type="search"]), select, textarea {
+  width: 100%; min-width: 0;
+  font: inherit; font-size: 15px; color: var(--ink);
+  background: var(--paper); border: 1.5px solid var(--rule); border-radius: 10px;
+  padding: 9px 12px;
+}
+textarea { resize: vertical; min-height: 64px; line-height: 1.45; }
+input:not([type="search"]):focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+}
+::placeholder { color: var(--ink-3); opacity: 1; }
+.hint { margin: 0; font-size: 13px; color: var(--accent); }
+.hint:empty, .form-error:empty { display: none; }
+.count { margin: 0; font-size: 12px; color: var(--ink-3); text-align: right; font-variant-numeric: tabular-nums; }
+.form-error { margin: 0; font-size: 13.5px; font-weight: 600; color: var(--danger); }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.preview { display: grid; gap: 6px; padding-top: 16px; border-top: 1.5px dashed var(--rule); }
+.preview .entry { padding: 0; border: 0; }
+.preview .headword { font-size: 28px; }
+.preview .def, .preview .ex { font-size: 16px; }
+.placeholder { color: var(--ink-3); }
+
+/* ---------- footer & toast ---------- */
+.foot { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 13px; color: var(--ink-3); max-width: 70ch; }
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  max-width: calc(100% - 32px);
+  background: var(--ink); color: var(--paper);
+  font-size: 14px; font-weight: 600;
+  padding: 10px 18px; border-radius: 999px; z-index: 20;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, .35);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sense.flash { animation: none; }
+  .composer-toggle .pm { transition: none; }
+}
+</style>
+
+<div class="page">
+  <header class="masthead">
+    <div class="brand">
+      <h1 class="logo"><span class="hl hl-2">Lexora</span></h1>
+      <p class="brand-pron">/lek·<b>SOR</b>·uh/ <i class="pos">n.</i></p>
+    </div>
+    <div>
+      <ol class="brand-senses">
+        <li><span class="n">1</span><span>a dictionary written by the people who actually say the words.</span></li>
+        <li><span class="n">2</span><span>where your group chat’s made-up slang goes to become official.</span></li>
+      </ol>
+      <p class="stats" id="stats">Opening the lexicon…</p>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="composer is-collapsed" id="composer" aria-label="Coin a word">
+      <button type="button" class="composer-toggle" id="composerToggle" aria-expanded="false" aria-controls="composerBody">
+        <span>Coin a word</span>
+        <span class="pm" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 2.5v11M2.5 8h11"/></svg></span>
+      </button>
+      <div class="composer-body" id="composerBody">
+        <h2 class="composer-title" id="composerTitle">Coin a word</h2>
+        <p class="composer-sub" id="composerSub">Made up a word? Define it here, and everyone on Lexora can read it, vote on it and start using it.</p>
+        <p class="access" id="access" role="status">Connecting to Lexora…</p>
+        <form id="form" novalidate>
+          <fieldset id="fs" disabled>
+            <div class="field">
+              <label for="f-word">Word</label>
+              <input id="f-word" name="word" maxlength="40" autocomplete="off" spellcheck="false" placeholder="The word you made up">
+              <p class="hint" id="wordHint" aria-live="polite"></p>
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label for="f-pron">Say it like <span class="opt">optional</span></label>
+                <input id="f-pron" name="pron" maxlength="40" autocomplete="off" spellcheck="false" placeholder="e.g. FLOO-mee">
+              </div>
+              <div class="field">
+                <label for="f-pos">Part of speech</label>
+                <select id="f-pos" name="pos">
+                  <option value="noun">noun</option>
+                  <option value="verb">verb</option>
+                  <option value="adjective">adjective</option>
+                  <option value="adverb">adverb</option>
+                  <option value="interjection">interjection</option>
+                  <option value="phrase">phrase</option>
+                  <option value="abbreviation">abbreviation</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="f-def">Definition</label>
+              <textarea id="f-def" name="def" maxlength="400" rows="3" placeholder="What does it mean? Write it like a dictionary would."></textarea>
+              <p class="count" id="defCount">0 / 400</p>
+            </div>
+            <div class="field">
+              <label for="f-ex">Use it in a sentence <span class="opt">optional</span></label>
+              <textarea id="f-ex" name="ex" maxlength="200" rows="2" placeholder="How would someone actually say it?"></textarea>
+            </div>
+            <div class="field">
+              <label for="f-origin">Origin <span class="opt">optional</span></label>
+              <input id="f-origin" name="origin" maxlength="160" autocomplete="off" placeholder="Where did it come from?">
+            </div>
+            <p class="form-error" id="formError" role="alert"></p>
+            <div class="actions">
+              <button type="submit" class="btn primary" id="submitBtn">Add to Lexora</button>
+              <button type="button" class="btn ghost" id="cancelEdit" hidden>Cancel</button>
+            </div>
+          </fieldset>
+        </form>
+        <div class="preview">
+          <p class="eyebrow muted">Preview</p>
+          <div id="preview"></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="feed">
+      <section class="wotd" id="wotd" aria-label="Word of the day">
+        <p class="eyebrow">Word of the day</p>
+        <h2 class="wotd-word small">Opening the lexicon…</h2>
+      </section>
+
+      <div class="toolbar">
+        <label class="search" for="q">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.8"/><path d="m10.6 10.6 3.4 3.4"/></svg>
+          <input id="q" type="search" placeholder="Search words and definitions" autocomplete="off" aria-label="Search words and definitions">
+          <kbd aria-hidden="true">/</kbd>
+        </label>
+        <div class="seg" role="group" aria-label="Sort words">
+          <button type="button" data-sort="fresh" aria-pressed="true">Fresh</button>
+          <button type="button" data-sort="top" aria-pressed="false">Top</button>
+          <button type="button" data-sort="az" aria-pressed="false">A–Z</button>
+        </div>
+        <button type="button" class="chip" id="mine" aria-pressed="false" disabled>My words</button>
+      </div>
+
+      <nav class="thumbs" id="thumbs" aria-label="Jump to a letter"></nav>
+      <p class="list-note" id="listNote" hidden></p>
+      <div class="entries" id="list"></div>
+    </main>
+  </div>
+
+  <p class="foot">Every entry on Lexora was written by someone using this page. Keep it kind. The page owner can remove any definition.</p>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(() => {
+  "use strict";
+
+  const POS = { noun: "n.", verb: "v.", adjective: "adj.", adverb: "adv.", interjection: "interj.", phrase: "phr.", abbreviation: "abbr." };
+  const LIMIT = { word: 40, pron: 40, def: 400, ex: 200, origin: 160 };
+  const WORD_RE = /^[\p{L}\p{N}][\p{L}\p{N}\p{M} '’.\-]*$/u;
+  const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("");
+  const COLLECTION = "lexicon";
+
+  const $ = (s) => document.querySelector(s);
+  const els = {
+    stats: $("#stats"), wotd: $("#wotd"), thumbs: $("#thumbs"), list: $("#list"), listNote: $("#listNote"),
+    q: $("#q"), mine: $("#mine"), composer: $("#composer"), toggle: $("#composerToggle"),
+    access: $("#access"), form: $("#form"), fs: $("#fs"),
+    word: $("#f-word"), pron: $("#f-pron"), pos: $("#f-pos"), def: $("#f-def"), ex: $("#f-ex"), origin: $("#f-origin"),
+    wordHint: $("#wordHint"), defCount: $("#defCount"), formError: $("#formError"),
+    submit: $("#submitBtn"), cancel: $("#cancelEdit"), preview: $("#preview"),
+    title: $("#composerTitle"), toast: $("#toast"),
+    sortBtns: Array.from(document.querySelectorAll("[data-sort]")),
+  };
+
+  const state = {
+    phase: "loading",      // loading | ready | nodb | error
+    loaded: false, slow: false, fromCache: false, error: null,
+    db: null, user: null, me: null, meProfile: null, isOwner: false, canWrite: null, readOnly: false,
+    docs: new Map(),       // uid -> { words: {id: entry}, votes: {id: 1|-1|0} }
+    ps: {},                // uid -> profile (resolved per render, never stored)
+    m: null,
+    sort: "fresh", q: "", letter: null, mine: false,
+    editing: null, confirmDel: null, busy: false,
+    flashes: {}, scrollTo: null,
+    pendingVotes: {}, flushingVotes: {}, myDocCreated: false,
+  };
+
+  try { const s = localStorage.getItem("lexora.sort"); if (s === "fresh" || s === "top" || s === "az") state.sort = s; } catch (e) {}
+
+  /* ---------- helpers ---------- */
+  function h(tag, props, ...kids) {
+    const el = document.createElement(tag);
+    if (props) for (const k of Object.keys(props)) {
+      const v = props[k];
+      if (v == null || v === false) continue;
+      if (k === "class") el.className = v;
+      else if (k === "text") el.textContent = v;
+      else if (k.startsWith("on") && typeof v === "function") el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? "" : String(v));
+    }
+    for (const c of kids.flat(Infinity)) {
+      if (c == null || c === false) continue;
+      el.append(c instanceof Node ? c : document.createTextNode(String(c)));
+    }
+    return el;
+  }
+  function svg(markup) { const s = document.createElement("span"); s.innerHTML = markup; return s.firstChild; }
+  const ICON = {
+    up: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13V3.5M3.5 7.5 8 3l4.5 4.5"/></svg>',
+    down: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v9.5M3.5 8.5 8 13l4.5-4.5"/></svg>',
+  };
+  function clean(v, max) { return typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : ""; }
+  function keyOf(w) { return String(w || "").normalize("NFC").trim().toLowerCase().replace(/\s+/g, " "); }
+  function letterOf(key) {
+    const c = key.normalize("NFD").replace(/[̀-ͯ]/g, "").charAt(0).toUpperCase();
+    return /[A-Z]/.test(c) ? c : "#";
+  }
+  function hash(s) { let x = 2166136261; for (let i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 16777619); } return x >>> 0; }
+  function plural(n, one, many) { return n === 1 ? one : (many || one + "s"); }
+  function reduced() { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } }
+  function newId() { return "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+  function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+  function ago(t) {
+    if (!t) return "";
+    const s = Math.max(0, (Date.now() - t) / 1000);
+    if (s < 45) return "just now";
+    const m = Math.round(s / 60); if (m < 60) return m + "m ago";
+    const hr = Math.round(m / 60); if (hr < 24) return hr + "h ago";
+    const d = Math.round(hr / 24); if (d < 7) return d + "d ago";
+    return shortDate(t);
+  }
+  function shortDate(t) {
+    const d = new Date(t), now = new Date();
+    return d.toLocaleDateString(undefined, d.getFullYear() === now.getFullYear() ? { month: "short", day: "numeric" } : { month: "short", day: "numeric", year: "numeric" });
+  }
+  function fullDate(t) { try { return new Date(t).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }); } catch (e) { return ""; } }
+
+  let toastTimer = 0;
+  function toast(msg) {
+    els.toast.textContent = msg;
+    els.toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { els.toast.hidden = true; }, 3200);
+  }
+
+  function canPost() {
+    return !!(state.db && state.me && state.loaded && state.phase === "ready" && state.canWrite !== false && !state.readOnly);
+  }
+  function myDoc() { return state.docs.get(state.me) || null; }
+  function myVote(id) {
+    if (id in state.pendingVotes) return state.pendingVotes[id];
+    if (id in state.flushingVotes) return state.flushingVotes[id];
+    const d = myDoc();
+    const v = d && d.votes && typeof d.votes === "object" ? d.votes[id] : 0;
+    return v === 1 || v === -1 ? v : 0;
+  }
+  function nameOf(uid) {
+    const p = state.ps[uid];
+    const n = p && p.name;
+    if (uid && uid === state.me) return n ? n + " (you)" : "you";
+    return n || "Someone";
+  }
+  function avatarEl(uid) {
+    const p = state.ps[uid];
+    if (p && p.avatarUrl) return h("img", { class: "av", src: p.avatarUrl, alt: "", width: 22, height: 22, loading: "lazy" });
+    return h("span", { class: "av", "aria-hidden": "true" });
+  }
+
+  /* ---------- derive the dictionary from everyone's documents ---------- */
+  function model() {
+    const byId = new Map();
+    for (const [uid, d] of state.docs) {
+      const words = d && d.words && typeof d.words === "object" ? d.words : {};
+      for (const id of Object.keys(words)) {
+        const w = words[id];
+        if (!w || typeof w !== "object" || byId.has(id)) continue;
+        const word = clean(w.word, LIMIT.word), def = clean(w.def, LIMIT.def);
+        if (!word || !def) continue;
+        byId.set(id, {
+          id, uid, word, key: keyOf(word), def,
+          pron: clean(w.pron, LIMIT.pron), pos: POS[w.pos] ? w.pos : "",
+          ex: clean(w.ex, LIMIT.ex), origin: clean(w.origin, LIMIT.origin),
+          at: Number.isFinite(w.at) ? w.at : 0, edited: Number.isFinite(w.edited) ? w.edited : 0,
+          up: 0, down: 0, score: 0,
+        });
+      }
+    }
+    const voters = new Map(state.docs);
+    if (state.me && !voters.has(state.me)) voters.set(state.me, {});
+    for (const [uid, d] of voters) {
+      let votes = d && d.votes && typeof d.votes === "object" ? d.votes : {};
+      if (uid === state.me) votes = Object.assign({}, votes, state.flushingVotes, state.pendingVotes);
+      for (const id of Object.keys(votes)) {
+        const s = byId.get(id);
+        if (!s || s.uid === uid) continue;
+        if (votes[id] === 1) s.up++;
+        else if (votes[id] === -1) s.down++;
+      }
+    }
+    const gm = new Map();
+    for (const s of byId.values()) {
+      s.score = s.up - s.down;
+      let g = gm.get(s.key);
+      if (!g) gm.set(s.key, (g = { key: s.key, senses: [] }));
+      g.senses.push(s);
+    }
+    const groups = [];
+    for (const g of gm.values()) {
+      const byTime = g.senses.slice().sort((a, b) => a.at - b.at);
+      g.first = byTime[0];
+      g.word = g.first.word;
+      g.pron = (byTime.find((s) => s.pron) || {}).pron || "";
+      g.latest = byTime[byTime.length - 1].at;
+      g.senses.sort((a, b) => b.score - a.score || a.at - b.at);
+      g.best = g.senses[0];
+      g.letter = letterOf(g.key);
+      g.hl = 1 + (hash(g.key) % 5);
+      groups.push(g);
+    }
+    const authorIds = Array.from(new Set(Array.from(byId.values(), (s) => s.uid)));
+    return { groups, senseCount: byId.size, authorIds };
+  }
+
+  function view(m) {
+    const q = state.q.trim().toLowerCase();
+    const out = [];
+    for (const g of m.groups) {
+      if (state.letter && g.letter !== state.letter) continue;
+      let ss = g.senses;
+      if (state.mine) ss = ss.filter((s) => s.uid === state.me);
+      if (q && !g.key.includes(q)) ss = ss.filter((s) => (s.def + " " + s.ex + " " + s.origin).toLowerCase().includes(q));
+      if (ss.length) out.push(Object.assign({}, g, { shown: ss }));
+    }
+    if (state.sort === "top") out.sort((a, b) => b.best.score - a.best.score || b.best.up - a.best.up || b.latest - a.latest);
+    else if (state.sort === "az") out.sort((a, b) => a.key.localeCompare(b.key));
+    else out.sort((a, b) => b.latest - a.latest);
+    return out;
+  }
+
+  /* ---------- rendering ---------- */
+  let renderToken = 0;
+  async function renderAll() {
+    const t = ++renderToken;
+    const m = model();
+    let ps = {};
+    if (state.user && m.authorIds.length) {
+      try { ps = (await state.user.profiles(m.authorIds)) || {}; } catch (e) { ps = {}; }
+    }
+    if (t !== renderToken) return;
+    state.m = m;
+    state.ps = ps;
+    paintStats(m);
+    paintWotd(m);
+    paintThumbs(m);
+    paintList(m);
+    paintAccess();
+    paintHint();
+  }
+
+  function paintStats(m) {
+    const el = els.stats;
+    if (state.phase === "nodb") { el.textContent = "Open Lexora on claude.ai to read everyone’s words."; return; }
+    if (!state.loaded) {
+      if (state.phase === "error") el.textContent = "Lexora’s words aren’t available in this view.";
+      else el.textContent = state.slow ? "Can’t reach Lexora’s word store yet. Words will show up once it connects." : "Opening the lexicon…";
+      return;
+    }
+    const g = m.groups.length, s = m.senseCount, a = m.authorIds.length;
+    const parts = [h("b", { text: String(g) }), " " + plural(g, "word") + " · ", h("b", { text: String(s) }), " " + plural(s, "definition") + " · ", h("b", { text: String(a) }), " " + plural(a, "coiner")];
+    if (state.phase === "error") {
+      parts.push(" · connection lost ");
+      if (state.error && state.error.code === "unavailable") parts.push(h("button", { type: "button", class: "linkish", onclick: subscribe }, "Reconnect"));
+    } else if (state.slow && state.fromCache) parts.push(" · showing saved words, may be out of date");
+    el.replaceChildren(...parts);
+  }
+
+  function wotdPick(groups) {
+    if (!groups.length) return null;
+    const pool = groups.filter((g) => g.best.score >= 0);
+    const list = (pool.length ? pool : groups).slice().sort((a, b) => (a.key < b.key ? -1 : 1));
+    const d = new Date();
+    return list[hash(d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate()) % list.length];
+  }
+
+  function paintWotd(m) {
+    const el = els.wotd;
+    const today = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+    if (state.phase === "nodb") {
+      el.replaceChildren(
+        h("p", { class: "eyebrow", text: "Not connected" }),
+        h("h2", { class: "wotd-word small", text: "Lexora lives on claude.ai." }),
+        h("p", { class: "wotd-text", text: "The shared word list loads when this page is opened on claude.ai. Open it there to read everyone’s words and coin your own." })
+      );
+      return;
+    }
+    if (!state.loaded) {
+      el.replaceChildren(
+        h("p", { class: "eyebrow", text: "Word of the day" }),
+        h("h2", { class: "wotd-word small", text: state.phase === "error" ? "Lexora’s words aren’t available here." : "Opening the lexicon…" }),
+        state.slow ? h("p", { class: "wotd-text", text: "This is taking longer than usual. The words will appear as soon as the connection comes through." }) : null
+      );
+      return;
+    }
+    if (!m.groups.length) {
+      el.replaceChildren(
+        h("div", { class: "wotd-top" }, h("p", { class: "eyebrow", text: "Page one" }), h("p", { class: "eyebrow muted", text: today })),
+        h("h2", { class: "wotd-word small" }, h("span", { class: "hl hl-1", text: "No words yet." })),
+        h("p", { class: "wotd-text", text: "Every word on Lexora is coined by someone here. Think of a word you and your friends actually say that no dictionary has caught yet, then define it." }),
+        h("div", { class: "wotd-foot" },
+          h("span", { class: "by" }, "The first word you post becomes the word of the day."),
+          canPost() ? h("button", { type: "button", class: "btn primary", onclick: () => openComposer(true) }, "Coin the first word") : null)
+      );
+      return;
+    }
+    const g = wotdPick(m.groups), s = g.best;
+    el.replaceChildren(
+      h("div", { class: "wotd-top" }, h("p", { class: "eyebrow", text: "Word of the day" }), h("p", { class: "eyebrow muted", text: today })),
+      h("h2", { class: "wotd-word" }, h("span", { class: "hl hl-" + g.hl, text: g.word })),
+      g.pron ? h("span", { class: "pron", text: "/" + g.pron + "/" }) : null,
+      h("p", { class: "wotd-def" }, s.pos ? h("i", { class: "pos", title: s.pos, text: POS[s.pos] }) : null, s.def),
+      s.ex ? h("p", { class: "ex", text: "“" + s.ex + "”" }) : null,
+      h("div", { class: "wotd-foot" },
+        h("span", { class: "by" }, avatarEl(g.first.uid), h("span", {}, "coined by ", h("span", { class: "name", text: nameOf(g.first.uid) }), " · ", shortDate(g.first.at))),
+        h("button", { type: "button", class: "btn ghost sm", onclick: () => goTo(g.key) }, g.senses.length > 1 ? "See all " + g.senses.length + " definitions" : "See the entry"))
+    );
+  }
+
+  function buildThumbs() {
+    const all = h("button", { type: "button", class: "all", "aria-pressed": "true", "data-letter": "" }, "All");
+    const btns = LETTERS.map((L) => h("button", { type: "button", "aria-pressed": "false", "data-letter": L, disabled: true }, L));
+    els.thumbs.replaceChildren(all, ...btns);
+    els.thumbs.addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-letter]");
+      if (!b || b.disabled) return;
+      const L = b.getAttribute("data-letter") || null;
+      state.letter = state.letter === L ? null : L;
+      renderAll();
+    });
+  }
+  function paintThumbs(m) {
+    const counts = {};
+    for (const g of m.groups) counts[g.letter] = (counts[g.letter] || 0) + 1;
+    for (const b of els.thumbs.querySelectorAll("button[data-letter]")) {
+      const L = b.getAttribute("data-letter");
+      if (!L) { b.setAttribute("aria-pressed", String(!state.letter)); continue; }
+      const n = counts[L] || 0;
+      b.setAttribute("aria-pressed", String(state.letter === L));
+      b.disabled = !n && state.letter !== L;
+      b.setAttribute("aria-label", (L === "#" ? "Numbers and symbols" : L) + ", " + n + " " + plural(n, "word"));
+    }
+  }
+
+  function paintList(m) {
+    const active = document.activeElement;
+    const fk = active && active.dataset ? active.dataset.f : null;
+    const total = m.groups.length;
+    const shown = state.loaded ? view(m) : [];
+    const frag = document.createDocumentFragment();
+    for (const g of shown) frag.append(entryEl(g, g.shown));
+    els.list.replaceChildren(frag);
+
+    const filtering = !!(state.letter || state.q.trim() || state.mine);
+    if (state.loaded && total && filtering) {
+      els.listNote.hidden = false;
+      els.listNote.replaceChildren(
+        shown.length ? "Showing " + shown.length + " of " + total + " " + plural(total, "word") + ". " : "No words match these filters. ",
+        h("button", { type: "button", class: "linkish", onclick: clearFilters }, "Clear filters"));
+    } else els.listNote.hidden = true;
+
+    els.mine.disabled = !state.me || !state.loaded;
+    els.mine.setAttribute("aria-pressed", String(state.mine));
+    for (const b of els.sortBtns) b.setAttribute("aria-pressed", String(b.dataset.sort === state.sort));
+
+    if (fk) {
+      const el = Array.from(els.list.querySelectorAll("[data-f]")).find((x) => x.dataset.f === fk);
+      if (el) el.focus({ preventScroll: true });
+    }
+    if (state.scrollTo) {
+      const li = Array.from(els.list.querySelectorAll(".sense")).find((x) => x.dataset.id === state.scrollTo);
+      if (li) {
+        li.scrollIntoView({ block: "center", behavior: reduced() ? "auto" : "smooth" });
+        state.scrollTo = null;
+      }
+    }
+  }
+
+  function entryEl(g, shown, opts) {
+    const preview = !!(opts && opts.preview);
+    const multi = g.senses.length > 1;
+    return h("article", { class: "entry", "data-key": g.key },
+      h("header", { class: "entry-head" },
+        h(preview ? "p" : "h3", { class: "headword" }, h("span", { class: "hl hl-" + g.hl + (g.placeholder ? " placeholder" : ""), text: g.word })),
+        g.pron ? h("span", { class: "pron", text: "/" + g.pron + "/" }) : null,
+        multi ? h("span", { class: "sense-count", text: g.senses.length + " definitions" }) : null),
+      h("ol", { class: "senses" + (multi ? " multi" : "") },
+        shown.map((s) => senseEl(g, s, multi ? g.senses.indexOf(s) + 1 : 0, preview)))
+    );
+  }
+
+  function senseEl(g, s, n, preview) {
+    const mine = !!state.me && s.uid === state.me;
+    const coined = g.first === s;
+    const started = state.flashes[s.id];
+    let flashAttrs = {};
+    if (started && Date.now() - started < 2200) flashAttrs = { style: "animation-delay:-" + (Date.now() - started) + "ms" };
+    const body = h("div", { class: "sense-body" },
+      h("p", { class: "def" + (s.placeholder ? " placeholder" : "") }, s.pos ? h("i", { class: "pos", title: s.pos, text: POS[s.pos] }) : null, s.def),
+      s.ex ? h("p", { class: "ex", text: "“" + s.ex + "”" }) : null,
+      s.origin ? h("p", { class: "origin" }, h("b", { text: "Origin" }), s.origin) : null,
+      preview
+        ? h("div", { class: "sense-foot" }, h("span", { class: "by" }, h("span", {}, "coined by ", h("span", { class: "name", text: (state.meProfile && state.meProfile.name) || "you" }), " · just now")))
+        : footEl(g, s, mine, coined)
+    );
+    return h("li", Object.assign({ class: "sense" + (flashAttrs.style ? " flash" : ""), "data-id": s.id }, flashAttrs), n ? h("span", { class: "num", text: String(n) }) : null, body);
+  }
+
+  function footEl(g, s, mine, coined) {
+    const v = myVote(s.id);
+    const canVote = canPost() && !mine;
+    const voteBtn = (dir) => {
+      const on = v === dir, count = dir === 1 ? s.up : s.down, label = dir === 1 ? "valid" : "mid";
+      return h("button", {
+        type: "button", class: "vote " + (dir === 1 ? "up" : "down"), "aria-pressed": String(on),
+        "data-f": s.id + ":" + dir, disabled: !canVote,
+        title: mine ? "You can’t vote on your own word" : (dir === 1 ? "Valid: this word works" : "Mid: not feeling it"),
+        "aria-label": "Vote " + label + ", " + count + " " + plural(count, "vote"),
+        onclick: () => vote(s.id, dir),
+      }, svg(ICON[dir === 1 ? "up" : "down"]), h("span", { text: label }), h("b", { text: String(count) }));
+    };
+    const canRemove = mine || (state.isOwner && canPost());
+    let tools;
+    if (state.confirmDel === s.id) {
+      tools = h("div", { class: "confirm", role: "group", "aria-label": "Confirm delete" },
+        h("span", { text: mine ? "Delete this definition? You can’t undo this." : "Remove this definition from Lexora? You can’t undo this." }),
+        h("button", { type: "button", class: "btn danger sm", "data-f": s.id + ":yes", onclick: () => removeSense(s) }, mine ? "Delete" : "Remove"),
+        h("button", { type: "button", class: "btn ghost sm", "data-f": s.id + ":no", onclick: () => { state.confirmDel = null; renderAll(); } }, "Keep it"));
+    } else {
+      tools = h("div", { class: "tools" },
+        h("button", { type: "button", class: "tool", "data-f": s.id + ":copy", onclick: () => copySense(g, s) }, "Copy"),
+        mine && canPost() ? h("button", { type: "button", class: "tool", "data-f": s.id + ":edit", onclick: () => startEdit(s) }, "Edit") : null,
+        canRemove && canPost() ? h("button", { type: "button", class: "tool warn", "data-f": s.id + ":del", onclick: () => { state.confirmDel = s.id; renderAll(); } }, mine ? "Delete" : "Remove") : null);
+    }
+    return h("footer", { class: "sense-foot" },
+      h("span", { class: "by" }, avatarEl(s.uid),
+        h("span", {}, coined ? "coined by " : "defined by ", h("span", { class: "name", text: nameOf(s.uid) }), " · ",
+          h("time", { datetime: s.at ? new Date(s.at).toISOString() : null, title: s.at ? fullDate(s.at) : null, text: ago(s.at) }),
+          s.edited ? " · edited" : "")),
+      h("div", { class: "votes" }, voteBtn(1), voteBtn(-1)),
+      tools);
+  }
+
+  function paintAccess() {
+    const el = els.access;
+    let parts = null;
+    if (state.phase === "nodb") parts = ["Posting works when Lexora is open on claude.ai."];
+    else if (state.phase === "error") parts = ["Lexora lost its connection, so posting is paused."];
+    else if (!state.loaded) parts = [state.slow ? "Still connecting to Lexora…" : "Connecting to Lexora…"];
+    else if (!state.me) parts = ["Sign in to claude.ai to coin words and vote."];
+    else if (state.canWrite === false || state.readOnly) parts = ["Your access to this page is view-only. You can read and copy words, but posting and voting need edit access from whoever shared it."];
+    else {
+      const nm = (state.meProfile && state.meProfile.name) || "you";
+      parts = [state.meProfile && state.meProfile.avatarUrl ? h("img", { class: "av", src: state.meProfile.avatarUrl, alt: "" }) : null,
+        h("span", {}, "Posting as ", h("b", { text: nm }), state.isOwner ? ". You own this page, so you can also remove anyone’s definition." : "")];
+    }
+    el.replaceChildren(...parts.filter(Boolean));
+    els.fs.disabled = !canPost() || state.busy;
+  }
+
+  function paintHint() {
+    const k = keyOf(els.word.value);
+    if (!k || !state.m) { els.wordHint.textContent = ""; return; }
+    const g = state.m.groups.find((x) => x.key === k);
+    const others = g ? g.senses.filter((s) => s.id !== state.editing) : [];
+    if (!others.length) { els.wordHint.textContent = ""; return; }
+    const mineAlready = others.some((s) => s.uid === state.me);
+    els.wordHint.textContent = mineAlready
+      ? "You already defined “" + g.word + "”. Edit that definition instead of adding another."
+      : "“" + g.word + "” is already in Lexora with " + others.length + " " + plural(others.length, "definition") + ". Yours will be listed alongside.";
+  }
+
+  function readForm() {
+    return {
+      word: clean(els.word.value, LIMIT.word),
+      pron: clean(els.pron.value, LIMIT.pron).replace(/^\/+|\/+$/g, "").trim(),
+      pos: POS[els.pos.value] ? els.pos.value : "noun",
+      def: clean(els.def.value, LIMIT.def),
+      ex: clean(els.ex.value, LIMIT.ex).replace(/^["“”']+|["“”']+$/g, "").trim(),
+      origin: clean(els.origin.value, LIMIT.origin),
+    };
+  }
+
+  function paintPreview() {
+    const v = readForm();
+    const word = v.word || "your word";
+    const s = { id: "preview", uid: state.me, word, pos: v.pos, def: v.def || "Your definition shows up here, the way everyone else will see it.", ex: v.ex, origin: v.origin, at: Date.now(), up: 0, down: 0, placeholder: !v.def };
+    const g = { key: keyOf(word), word, pron: v.pron, hl: 1 + (hash(keyOf(word)) % 5), senses: [s], first: s, placeholder: !v.word };
+    els.preview.replaceChildren(entryEl(g, [s], { preview: true }));
+    els.defCount.textContent = els.def.value.length + " / " + LIMIT.def;
+  }
+
+  /* ---------- writes ---------- */
+  let chain = Promise.resolve();
+  function queueWrite(fn) {
+    const run = async () => {
+      try { return await fn(); }
+      catch (e) {
+        if (e && e.code === "unavailable") { await sleep(300 + Math.random() * 700); return await fn(); }
+        throw e;
+      }
+    };
+    const p = chain.then(run);
+    chain = p.catch(() => {});
+    return p;
+  }
+  function myRef() { return state.db.collection(COLLECTION).doc(state.me); }
+  async function writeMine(patch) {
+    if (state.docs.has(state.me) || state.myDocCreated) await myRef().update(patch);
+    else { await myRef().set(Object.assign({ words: {}, votes: {} }, patch)); state.myDocCreated = true; }
+  }
+  function writeFailed(e, own) {
+    const code = e && e.code;
+    if (code === "invalid_argument" && own) {
+      state.readOnly = true;
+      toast("Lexora didn’t accept that. Your access to this page may be view-only.");
+    } else if (code === "quota_exceeded") toast("Lexora is full. Delete a few old definitions to make room.");
+    else if (code === "resource_exhausted") toast("That was a lot at once. Wait a moment, then try again.");
+    else if (code === "revoked" || code === "not_granted") toast("This page can’t save changes right now.");
+    else toast("That didn’t save. Check your connection and try again.");
+    renderAll();
+  }
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    if (!canPost() || state.busy) return;
+    els.formError.textContent = "";
+    const v = readForm();
+    let bad = null;
+    if (!v.word) bad = [els.word, "Give your word a spelling first."];
+    else if (!WORD_RE.test(v.word)) bad = [els.word, "Words can use letters, numbers, spaces, hyphens, apostrophes and dots, and must start with a letter or number."];
+    else if (v.def.length < 3) bad = [els.def, "Add a definition so people know what it means."];
+    else if (!state.editing && state.m) {
+      const g = state.m.groups.find((x) => x.key === keyOf(v.word));
+      if (g && g.senses.some((s) => s.uid === state.me)) bad = [els.word, "You already defined “" + g.word + "”. Edit that definition instead."];
+    }
+    if (bad) { els.formError.textContent = bad[1]; bad[0].focus(); return; }
+
+    const editing = state.editing;
+    const d = myDoc();
+    const prev = editing && d && d.words ? d.words[editing] : null;
+    const now = Date.now();
+    const entry = { word: v.word, pron: v.pron, pos: v.pos, def: v.def, ex: v.ex, origin: v.origin, at: prev && Number.isFinite(prev.at) ? prev.at : now };
+    if (prev) entry.edited = now;
+    const id = editing || newId();
+
+    state.busy = true; paintAccess();
+    try {
+      await queueWrite(() => writeMine({ words: { [id]: entry } }));
+      resetForm();
+      state.flashes[id] = Date.now();
+      state.scrollTo = id;
+      if (!prev) { state.letter = null; state.mine = false; state.q = ""; els.q.value = ""; }
+      toast(prev ? "Saved your changes to “" + v.word + "”." : "Added “" + v.word + "” to Lexora.");
+    } catch (err) { writeFailed(err, true); }
+    finally { state.busy = false; renderAll(); }
+  }
+
+  function resetForm() {
+    els.form.reset();
+    state.editing = null;
+    els.title.textContent = "Coin a word";
+    els.submit.textContent = "Add to Lexora";
+    els.cancel.hidden = true;
+    els.formError.textContent = "";
+    paintPreview(); paintHint();
+  }
+
+  function startEdit(s) {
+    const d = myDoc();
+    const raw = d && d.words && d.words[s.id];
+    if (!raw) return;
+    state.editing = s.id;
+    els.word.value = clean(raw.word, LIMIT.word);
+    els.pron.value = clean(raw.pron, LIMIT.pron);
+    els.pos.value = POS[raw.pos] ? raw.pos : "noun";
+    els.def.value = clean(raw.def, LIMIT.def);
+    els.ex.value = clean(raw.ex, LIMIT.ex);
+    els.origin.value = clean(raw.origin, LIMIT.origin);
+    els.title.textContent = "Edit your definition";
+    els.submit.textContent = "Save changes";
+    els.cancel.hidden = false;
+    els.formError.textContent = "";
+    paintPreview(); paintHint();
+    openComposer(true);
+  }
+
+  async function removeSense(s) {
+    state.confirmDel = null;
+    const own = s.uid === state.me;
+    try {
+      await queueWrite(async () => {
+        const cur = state.docs.get(s.uid);
+        if (!cur || !cur.words || !(s.id in cur.words)) return;
+        const next = JSON.parse(JSON.stringify(cur));
+        delete next.words[s.id];
+        await state.db.collection(COLLECTION).doc(s.uid).set(next);
+      });
+      if (state.editing === s.id) resetForm();
+      toast(own ? "Deleted your definition of “" + s.word + "”." : "Removed that definition of “" + s.word + "”.");
+    } catch (e) { writeFailed(e, own); }
+    renderAll();
+  }
+
+  let voteTimer = 0;
+  function vote(id, dir) {
+    if (!canPost()) return;
+    const next = myVote(id) === dir ? 0 : dir;
+    state.pendingVotes[id] = next;
+    renderAll();
+    clearTimeout(voteTimer);
+    voteTimer = setTimeout(flushVotes, 450);
+  }
+  async function flushVotes() {
+    const batch = state.pendingVotes;
+    if (!Object.keys(batch).length) return;
+    state.pendingVotes = {};
+    state.flushingVotes = Object.assign({}, state.flushingVotes, batch);
+    try { await queueWrite(() => writeMine({ votes: batch })); }
+    catch (e) { writeFailed(e, true); }
+    finally {
+      for (const k of Object.keys(batch)) if (state.flushingVotes[k] === batch[k]) delete state.flushingVotes[k];
+      renderAll();
+    }
+  }
+
+  /* ---------- small interactions ---------- */
+  function copySense(g, s) {
+    const text = s.word + (g.pron ? " /" + g.pron + "/" : "") + (s.pos ? " (" + POS[s.pos] + ")" : "") + ": " + s.def + (s.ex ? "\n“" + s.ex + "”" : "") + "\nfrom Lexora";
+    const done = () => toast("Copied “" + s.word + "”. Paste it in the group chat.");
+    let p;
+    try { p = navigator.clipboard.writeText(text); } catch (e) { p = Promise.reject(e); }
+    p.then(done, () => {
+      const ta = h("textarea", { style: "position:fixed;top:0;left:0;opacity:0", "aria-hidden": "true" });
+      ta.value = text; document.body.append(ta); ta.select();
+      let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+      ta.remove();
+      ok ? done() : toast("Couldn’t copy here. Select the text and copy it yourself.");
+    });
+  }
+
+  async function goTo(key) {
+    const m = state.m;
+    if (!m) return;
+    if (!view(m).some((g) => g.key === key)) { state.letter = null; state.mine = false; state.q = ""; els.q.value = ""; }
+    const g = m.groups.find((x) => x.key === key);
+    if (g) { state.scrollTo = g.senses[0].id; state.flashes[g.senses[0].id] = Date.now(); }
+    await renderAll();
+  }
+
+  function clearFilters() {
+    state.letter = null; state.mine = false; state.q = ""; els.q.value = "";
+    renderAll();
+  }
+
+  function openComposer(focus) {
+    els.composer.classList.remove("is-collapsed");
+    els.toggle.setAttribute("aria-expanded", "true");
+    if (focus) {
+      els.composer.scrollIntoView({ block: "start", behavior: reduced() ? "auto" : "smooth" });
+      setTimeout(() => { if (!els.fs.disabled) els.word.focus({ preventScroll: true }); }, reduced() ? 0 : 250);
+    }
+  }
+
+  /* ---------- wiring ---------- */
+  els.toggle.addEventListener("click", () => {
+    const open = els.composer.classList.toggle("is-collapsed") === false;
+    els.toggle.setAttribute("aria-expanded", String(open));
+  });
+  els.form.addEventListener("submit", onSubmit);
+  els.form.addEventListener("input", () => { els.formError.textContent = ""; paintPreview(); paintHint(); });
+  els.form.addEventListener("change", paintPreview);
+  els.cancel.addEventListener("click", resetForm);
+  els.q.addEventListener("input", () => { state.q = els.q.value; renderAll(); });
+  els.mine.addEventListener("click", () => { state.mine = !state.mine; renderAll(); });
+  for (const b of els.sortBtns) b.addEventListener("click", () => {
+    state.sort = b.dataset.sort;
+    try { localStorage.setItem("lexora.sort", state.sort); } catch (e) {}
+    renderAll();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
+    const t = e.target;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
+    e.preventDefault(); els.q.focus();
+  });
+  setInterval(() => { if (state.loaded) renderAll(); }, 60000);
+
+  /* ---------- connect ---------- */
+  let unsub = null, slowTimer = 0;
+  function subscribe() {
+    if (unsub) { try { unsub(); } catch (e) {} unsub = null; }
+    state.phase = state.loaded ? "ready" : "loading";
+    state.error = null; state.slow = false;
+    clearTimeout(slowTimer);
+    slowTimer = setTimeout(() => { state.slow = true; renderAll(); }, 10000);
+    try {
+      unsub = state.db.collection(COLLECTION).onSnapshot((snap) => {
+        const docs = new Map();
+        for (const d of snap.docs) if (d.exists) docs.set(d.id, d.data() || {});
+        state.docs = docs;
+        state.loaded = true;
+        state.phase = "ready";
+        state.fromCache = !!snap.metadata.fromCache;
+        if (!snap.metadata.fromCache) { clearTimeout(slowTimer); state.slow = false; }
+        renderAll();
+      }, (err) => {
+        clearTimeout(slowTimer);
+        state.slow = false; state.error = err; state.phase = "error";
+        renderAll();
+      });
+    } catch (e) {
+      clearTimeout(slowTimer);
+      state.error = e; state.phase = "error";
+    }
+    renderAll();
+  }
+
+  async function init() {
+    buildThumbs();
+    paintPreview();
+    renderAll();
+    const c = window.claude;
+    if (!c || typeof c.use !== "function") { state.phase = "nodb"; renderAll(); return; }
+    let db = null, user = null;
+    try { [db, user] = await Promise.all([c.use("db"), c.use("user")]); } catch (e) {}
+    state.user = user;
+    if (user) {
+      try {
+        const [me, owner, can] = await Promise.all([user.me(), user.isOwner(), user.can("data.write")]);
+        state.meProfile = me; state.me = me && me.id ? me.id : null; state.isOwner = !!owner; state.canWrite = can;
+      } catch (e) {}
+    }
+    if (!db) { state.phase = "nodb"; renderAll(); return; }
+    state.db = db;
+    subscribe();
+  }
+  init();
+})();
+</script>
+
+</body></html>
